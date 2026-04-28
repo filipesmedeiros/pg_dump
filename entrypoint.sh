@@ -40,7 +40,7 @@ fi
 
 if [[ "${COMMAND}" == 'dump' ]]; then
     /usr/local/bin/docker-entrypoint.sh postgres &
-    SLEEPTIME=5
+    SLEEPTIME=15
     echo "Sleeping ${SLEEPTIME} seconds to allow database to stand up..."
     sleep ${SLEEPTIME}
     exec /dump.sh
@@ -53,22 +53,6 @@ elif [[ "${COMMAND}" == 'dump-cron' ]]; then
 
     if [[ ! -z "${RETAIN_COUNT}" ]]; then
         CRON_ENV="$CRON_ENV\nRETAIN_COUNT=${RETAIN_COUNT}"
-    fi
-
-    # S3 settings
-    CRON_ENV="$CRON_ENV\nS3_HOSTNAME='${S3_HOSTNAME}'"
-    CRON_ENV="$CRON_ENV\nS3_HOST_BUCKET='${S3_HOST_BUCKET}'"
-    CRON_ENV="$CRON_ENV\nS3_SSL_OPTION='${S3_SSL_OPTION}'"
-    if [[ ! -z "${S3_ACCESS_KEY}" ]]; then
-        CRON_ENV="$CRON_ENV\nS3_ACCESS_KEY='${S3_ACCESS_KEY}'"
-    fi
-
-    if [[ ! -z "${S3_SECRET_KEY}" ]]; then
-        CRON_ENV="$CRON_ENV\nS3_SECRET_KEY='${S3_SECRET_KEY}'"
-    fi
-
-    if [[ ! -z "${S3_BUCKET_PATH}" ]]; then
-        CRON_ENV="$CRON_ENV\nS3_BUCKET_PATH='${S3_BUCKET_PATH}'"
     fi
 
     echo -e "$CRON_ENV\n$CRON_SCHEDULE" "/dump.sh >> ${PGDUMP}/dump-log 2>&1" | crontab -
